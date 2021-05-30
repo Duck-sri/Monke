@@ -65,11 +65,28 @@ class BlockChain:
         else:
             return self.create_genesis_block()
 
-    def add_block(self,new_block:Block) -> None:
+    def add_block(self,new_block:Block,display:bool = False) -> None:
 
+        if self.proof_of_work(new_block,display):
             new_block.prev_hash = sha_sum(self.get_latest_block().hash)
             new_block.hash = new_block.sha_sum_block() # recalculate the hash 
             self.chain.append(new_block)
+
+
+    def proof_of_work(self,new_block:Block,display:bool = False) -> bool:
+
+        start = time()
+        count = 0
+        while( new_block.hash[:self.difficulty] != '0'*self.difficulty):
+            new_block.noice = np.random.randint(0,100000)
+            new_block.hash = new_block.sha_sum_block()
+            count += 1
+
+        end = time()
+        if display:
+            print(f"Took abt {round(end - start,3) }s  and {count} iterations to generate hash \n")
+
+        return True
 
 
     def verify_chain(self) -> bool:
@@ -98,9 +115,10 @@ class BlockChain:
 
 def main():
     monke: BlockChain = BlockChain()
+    monke.difficulty = 4
     for i in range(1,11):
         ape = Block(i,{"amt":i**2,"from":"hi","to":"bye"},'')
-        monke.add_block(ape)
+        monke.add_block(ape,True)
 
     # print(monke)
     print(monke.verify_chain(),end='\n\n')
